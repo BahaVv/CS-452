@@ -1,0 +1,94 @@
+<!DOCTYPE html>
+<html>
+    <head>
+        <meta http-equiv="Content-Type" content="text/html;charset=utf-8" >
+            <title>Simple Shapes</title>
+			
+			<script id="vertex-shader" type="x-shader/x-vertex">
+			
+			attribute vec4 position;
+			attribute vec4 vertexColor;
+			varying vec4 fragmentColor;
+			uniform float alpha;
+			uniform float beta;
+			uniform float gamma;
+			uniform float scaleX, scaleY;
+			uniform float transX, transY;
+			mat4 M_rotx;
+			mat4 M_roty;
+			mat4 M_rotz;
+			mat4 M_trans;
+			mat4 M_scale;
+			
+			void main(){
+				// Column-wise matrices
+				M_rotx = mat4
+				(
+					1, 0, 0, 0,
+					0, cos(alpha), -sin(alpha), 0,
+					0, sin(alpha), cos(alpha), 0,
+					0, 0, 0, 1
+				);
+				
+				M_roty = mat4
+				(
+					cos(beta), 0, -sin(beta), 0,
+					0, 1, 0, 0,
+					sin(beta), 0, cos(beta), 0,
+					0, 0, 0, 1
+				);
+				
+				M_rotz = mat4
+				(
+					cos(gamma), -sin(gamma), 0, 0,
+					sin(gamma), cos(gamma), 0, 0,
+					0, 0, 1, 0,
+					0, 0, 0, 1
+				);
+				
+				M_trans = mat4
+				(
+					1, 0, 0, 0,
+					0, 1, 0, 0,
+					0, 0, 1, 0,
+					transX, transY, 0, 1
+				);
+				
+				M_scale = mat4
+				(
+					scaleX, 0, 0, 0,
+					0, scaleY, 0, 0,
+					0, 0, 1, 0,
+					0, 0, 0, 1
+				);
+				
+				gl_PointSize = 1.0; // Set internal vertex size to 1 pixel
+				gl_Position = M_scale * M_rotz * M_roty * M_rotx * M_trans * position; // Matrix multiplication natively handled by WebGL
+				fragmentColor = vertexColor;
+			}
+			
+			</script>
+			
+			<script id="fragment-shader" type="x-shader/x-fragment">
+			
+				precision mediump float;
+				varying vec4 fragmentColor;
+				
+				void main(){
+					// note: can use gl_FragCoord.x/y to get pixel position from 0->maxRes
+					gl_FragColor = fragmentColor;
+				}
+			
+			</script>
+            
+            <script type="text/javascript" src="../Common/webgl-utils.js"></script>
+            <script type="text/javascript" src="../Common/initShaders.js"></script>
+            <script type="text/javascript" src="../Common/MV.js"></script>
+			<script type="text/javascript" src="lab3.js"></script>
+    </head>
+    
+    <body onload="drawShapes();" onkeypress="keyPressed(event);">
+		<canvas id="gl-canvas" width="1024" height="1024"></canvas><br/>
+    </body>
+</html>
+
